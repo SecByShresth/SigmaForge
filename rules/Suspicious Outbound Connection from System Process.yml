@@ -1,0 +1,29 @@
+title: Suspicious Outbound Connection from System Process
+id: b1e2f3a4-5c69-4daf-f456-bbbbbbbbbbbb
+description: Detects system processes like powershell.exe or cmd.exe making outbound network connections.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 3
+    Image|endswith:
+      - '\cmd.exe'
+      - '\powershell.exe'
+    DestinationIp|not_in:
+      - '10.0.0.0/8'
+      - '172.16.0.0/12'
+      - '192.168.0.0/16'
+  condition: selection
+fields:
+  - Image
+  - DestinationIp
+  - DestinationPort
+level: high
+tags:
+  - attack.command_and_control
+falsepositives:
+  - Legitimate remote administration to external management services

@@ -1,0 +1,23 @@
+title: LD_PRELOAD Environment Variable Set
+id: c6d7e8f9-0b14-4c2r-4567-333344445555
+description: Detects processes started with LD_PRELOAD set (library preloading), used for persistence and hijacking.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: auditd
+detection:
+  selection:
+    syscall: execve
+    environment|contains: 'LD_PRELOAD'
+  condition: selection
+fields:
+  - process
+  - environment
+level: high
+tags:
+  - attack.persistence
+  - attack.t1574
+falsepositives:
+  - Legit developer or monitoring tools that use LD_PRELOAD

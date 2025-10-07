@@ -1,0 +1,24 @@
+title: Bash History Deletion Commands
+id: f7c8d9e0-1s25-4tmk-5678-333344445555
+description: Detects commands used to clear bash history or delete .bash_history (history -c, rm ~/.bash_history).
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: syslog
+detection:
+  selection:
+    Message|contains_any:
+      - 'history -c'
+      - 'rm ~/.bash_history'
+      - 'cat /dev/null > ~/.bash_history'
+  condition: selection
+fields:
+  - Message
+  - Hostname
+level: high
+tags:
+  - attack.defense_evasion
+falsepositives:
+  - Users deliberately cleaning history for privacy

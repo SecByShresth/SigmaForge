@@ -1,0 +1,29 @@
+title: Scheduled Task Creation by Non-System User
+id: 5e6f7a8b-9c03-4d4d-0fab-555555555555
+description: Detects creation of scheduled tasks (Event ID 4698) by non-administrative users.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_task:
+    EventID: 4698
+  selection_non_admin:
+    SubjectUserName|exclude:
+      - 'SYSTEM'
+      - 'LOCAL SERVICE'
+      - 'NETWORK SERVICE'
+  condition: selection_task and selection_non_admin
+fields:
+  - SubjectUserName
+  - TaskName
+level: high
+tags:
+  - attack.persistence
+  - attack.t1053
+references:
+  - https://attack.mitre.org/techniques/T1053/
+falsepositives:
+  - Authorized users creating tasks (should verify user role)

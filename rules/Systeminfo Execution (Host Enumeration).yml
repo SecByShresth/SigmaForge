@@ -1,0 +1,22 @@
+title: Systeminfo Execution (Host Enumeration)
+id: c8f9a0b1-2j36-4kef-6789-333344445555
+description: Detects execution of systeminfo.exe, often used in reconnaissance.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    Image|endswith: '\systeminfo.exe'
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+level: low
+tags:
+  - attack.discovery
+falsepositives:
+  - Admin enumeration and diagnostics

@@ -1,0 +1,27 @@
+title: Suspicious Run Key Modification
+id: 3c4d5e6f-7a81-4b2b-8dcd-333333333333
+description: Detects modifications to Windows Run keys for persistence (HKCU/HKLM Run keys).
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_registry_set:
+    EventID: 4657
+    ObjectName|contains:
+      - 'HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'
+      - 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'
+  condition: selection_registry_set
+fields:
+  - ObjectName
+  - SubjectUserName
+level: high
+tags:
+  - attack.persistence
+  - attack.t1547
+references:
+  - https://attack.mitre.org/techniques/T1547/
+falsepositives:
+  - Legitimate installers and user settings modifications

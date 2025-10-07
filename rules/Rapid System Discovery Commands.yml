@@ -1,0 +1,26 @@
+title: Rapid System Discovery Commands
+id: a0d1e2f3-4b58-4c9f-e345-aaaaaaaaaaaa
+description: Detects rapid execution of common discovery commands (net.exe, ipconfig, whoami) in quick succession.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_discovery:
+    EventID: 1
+    CommandLine|contains_any:
+      - 'net '
+      - 'ipconfig'
+      - 'whoami'
+      - 'nltest'
+  condition: selection_discovery
+fields:
+  - Image
+  - CommandLine
+level: medium
+tags:
+  - attack.discovery
+falsepositives:
+  - Administrators performing troubleshooting

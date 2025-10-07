@@ -1,0 +1,28 @@
+title: Shadow Volume Copy Deletion (Ransomware Activity)
+id: f5c6d7e8-9g03-4hdf-3456-ffffffffffff
+description: Detects commands that delete shadow copies (vssadmin Delete Shadows /all /quiet), typical of ransomware.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    Image|endswith: '\vssadmin.exe'
+    CommandLine|contains:
+      - 'Delete Shadows'
+      - '/all'
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+level: critical
+tags:
+  - attack.defense_evasion
+  - attack.t1485
+falsepositives:
+  - Backup/maintenance operations
+references:
+  - https://attack.mitre.org/techniques/T1485/

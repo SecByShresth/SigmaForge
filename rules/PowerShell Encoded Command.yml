@@ -1,0 +1,29 @@
+title: PowerShell Encoded Command
+id: 9a7f1a2b-1c4e-4d8b-9f2a-111111111111
+description: Detects execution of PowerShell with the -EncodedCommand argument, a common tactic to evade signature-based detection.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    Image|endswith: '\powershell.exe'
+    CommandLine|contains:
+      - '-EncodedCommand'
+      - '-enc'
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+  - ParentImage
+level: high
+tags:
+  - attack.execution
+  - attack.t1059
+references:
+  - https://attack.mitre.org/techniques/T1059/
+falsepositives:
+  - Administrative scripts using encoded commands

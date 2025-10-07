@@ -1,0 +1,22 @@
+title: DNS Tunneling Indicators (High Rate of Random Subdomains)
+id: f5a6b7c8-9l03-4l1a-3456-333344445555
+description: Detects unusually high rate of long, random-looking DNS queries from a host suggesting DNS tunneling.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: dns
+  service: resolver
+detection:
+  selection:
+    QueryName|matches_regex: '^[a-z0-9]{20,}\.'
+  condition: selection
+# Correlate rate per host (implementation-specific)
+fields:
+  - QueryName
+  - SourceIp
+level: high
+tags:
+  - attack.command_and_control
+falsepositives:
+  - Some CDNs or legitimate entropy-based domains (whitelist)

@@ -1,0 +1,23 @@
+title: Multiple Failed RDP Logins (Possible Brute Force)
+id: c2f3a4b5-6d70-4ebf-0123-cccccccccccc
+description: Correlates high number of failed RDP logins (Event ID 4625) from same source IP in short time window.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_failed:
+    EventID: 4625
+  condition: selection_failed
+# Note: Correlation engine should count identical SourceIp within window (implementation-specific)
+fields:
+  - IpAddress
+  - TargetUserName
+level: medium
+tags:
+  - attack.initial_access
+  - attack.bruteforce
+falsepositives:
+  - Misconfigured clients or legitimate users entering wrong credentials

@@ -1,0 +1,26 @@
+title: Clearing Wtmp/Btmp/Lastlog Files
+id: a0b1c2d3-4f58-4g6v-8901-777788889999
+description: Detects deletion or zeroing of wtmp, btmp, or lastlog, used to erase login trails.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: syslog
+detection:
+  selection:
+    Message|contains_any:
+      - '/var/log/wtmp'
+      - '/var/log/btmp'
+      - '/var/log/lastlog'
+    Message|contains_any:
+      - 'truncate'
+      - 'rm -f'
+  condition: selection
+fields:
+  - Message
+level: high
+tags:
+  - attack.defense_evasion
+falsepositives:
+  - Log rotation or maintenance scripts (verify context)

@@ -1,0 +1,25 @@
+title: BITS Job Creation Detected
+id: d3a4b5c6-7e81-4fcf-1234-dddddddddddd
+description: Detects creation of BITS jobs commonly used by adversaries to download files stealthily.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    CommandLine|contains:
+      - 'bitsadmin'
+      - 'Start-BitsTransfer'
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1105
+falsepositives:
+  - Legitimate BITS usage by patch systems

@@ -1,0 +1,25 @@
+title: Unusual User-Agent or Missing Referer in HTTP Requests
+id: c8d9e0f1-2o36-4o4d-6789-666677778888
+description: Detects HTTP requests with uncommon or known-malicious User-Agents or missing suspicious Referer headers, indicating automated tooling or C2 traffic.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: web
+  service: proxy
+detection:
+  selection:
+    UserAgent|matches_any:
+      - 'python-requests'
+      - 'curl/'
+    Referer|is: ''
+  condition: selection
+fields:
+  - UserAgent
+  - Referer
+  - Url
+level: medium
+tags:
+  - attack.command_and_control
+falsepositives:
+  - API clients and automated monitoring scripts (whitelist)

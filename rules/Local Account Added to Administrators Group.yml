@@ -1,0 +1,25 @@
+title: Local Account Added to Administrators Group
+id: 9c0d1e2f-3a47-4b8f-d234-999999999999
+description: Detects addition of a user account to the Administrators group (Event ID 4728/4728-like).
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4728
+    TargetUserName|contains: 'Administrators'
+  condition: selection
+fields:
+  - SubjectUserName
+  - TargetUserName
+level: critical
+tags:
+  - attack.privilege_escalation
+  - attack.t1068
+falsepositives:
+  - Legitimate admin user provisioning
+references:
+  - https://attack.mitre.org/techniques/T1068/

@@ -1,0 +1,28 @@
+title: Office Macro Auto-Execution Detection
+id: d9a0b1c2-3k47-4lef-7890-444455556666
+description: Detects Office applications launching with command lines indicative of auto-execution of macros or embedded code.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_macro:
+    EventID: 1
+    ParentImage|matches:
+      - '*\\winword.exe'
+      - '*\\excel.exe'
+    CommandLine|contains:
+      - '/m'
+      - '/automation'
+  condition: selection_macro
+fields:
+  - ParentImage
+  - CommandLine
+level: high
+tags:
+  - attack.initial_access
+  - attack.t1204
+falsepositives:
+  - Legitimate automation macros

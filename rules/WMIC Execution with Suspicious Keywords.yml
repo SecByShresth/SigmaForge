@@ -1,0 +1,26 @@
+title: WMIC Execution with Suspicious Keywords
+id: 4d5e6f7a-8b92-4c3c-9eab-444444444444
+description: Detects wmic.exe command lines containing keywords often used for lateral movement or remote process creation.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    Image|endswith: '\wmic.exe'
+    CommandLine|contains:
+      - 'process call create'
+      - '/node:'
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+level: medium
+tags:
+  - attack.execution
+  - attack.t1021
+falsepositives:
+  - Administrative WMIC usage

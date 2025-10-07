@@ -1,0 +1,24 @@
+title: New User Account Creation
+id: a4b5c6d7-8z92-4a0p-2345-111122223333
+description: Detects writes to passwd/shadow files or useradd invocations to identify new account creation.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: auditd
+detection:
+  selection:
+    syscall: creat
+    path|contains_any:
+      - '/etc/passwd'
+      - '/etc/shadow'
+  condition: selection
+fields:
+  - path
+  - syscall
+level: critical
+tags:
+  - attack.persistence
+falsepositives:
+  - Legit user provisioning

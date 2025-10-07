@@ -1,0 +1,23 @@
+title: Kernel Module Manipulation
+id: d7e8f9a0-1c25-4d3s-5678-444455556666
+description: Detects use of insmod, rmmod, or writes to /lib/modules indicating possible rootkit activity.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: syslog
+detection:
+  selection:
+    Message|contains_any:
+      - 'insmod'
+      - 'rmmod'
+      - '/lib/modules'
+  condition: selection
+fields:
+  - Message
+level: critical
+tags:
+  - attack.defense_evasion
+falsepositives:
+  - Legit kernel updates or module testing

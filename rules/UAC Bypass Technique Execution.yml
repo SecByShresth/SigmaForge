@@ -1,0 +1,29 @@
+title: UAC Bypass Technique Execution
+id: f1c2d3e4-5m69-4nhg-9012-666677778888
+description: Detects execution patterns of known UAC bypass binaries (fodhelper.exe, eventvwr.exe) with suspicious command lines.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    Image|matches:
+      - '*\\fodhelper.exe'
+      - '*\\eventvwr.exe'
+    CommandLine|contains_any:
+      - 'reg add'
+      - 'HKCU\\Software\\Classes'
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+level: high
+tags:
+  - attack.privilege_escalation
+falsepositives:
+  - Admin operations that interact with these components
+references:
+  - https://attack.mitre.org/techniques/T1548/

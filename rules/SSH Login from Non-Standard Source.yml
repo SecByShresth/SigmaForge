@@ -1,0 +1,22 @@
+title: SSH Login from Non-Standard Source
+id: d1f2a3b4-5w69-4xqn-9012-777788889999
+description: Detects SSH logins originating from sources not classified as known jump hosts or VPN exit points.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: auth
+detection:
+  selection:
+    Message|contains: 'Accepted password'
+  condition: selection
+# Correlate SourceIp against allowlist of jumpbox/vpn IP ranges (implementation-specific)
+fields:
+  - Message
+  - SourceIp
+level: medium
+tags:
+  - attack.lateral_movement
+falsepositives:
+  - Mobile or remote users connecting from new networks (verify)

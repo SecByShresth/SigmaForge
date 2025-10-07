@@ -1,0 +1,23 @@
+title: Auditd Rules Modification or Auditd Stop
+id: e2f3a4b5-6x70-4yrn-0123-888899990000
+description: Detects commands or service events indicating auditd configuration changes or auditd being stopped.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: syslog
+detection:
+  selection:
+    Message|contains_any:
+      - 'auditctl -e 0'
+      - 'service auditd stop'
+      - 'systemctl stop auditd'
+  condition: selection
+fields:
+  - Message
+level: high
+tags:
+  - attack.defense_evasion
+falsepositives:
+  - Admin disabling auditing for maintenance

@@ -1,0 +1,26 @@
+title: WMI Permanent Event Subscription Created
+id: a6d7e8f9-0h14-4idf-4567-111122223333
+description: Detects creation of WMI permanent event subscriptions (persistence technique).
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    CommandLine|contains:
+      - 'CompMgmtLauncher'
+      - 'EventFilter'
+      - 'EventConsumer'
+  condition: selection
+fields:
+  - CommandLine
+  - Image
+level: high
+tags:
+  - attack.persistence
+  - attack.t1047
+falsepositives:
+  - Legit admin WMI configurations

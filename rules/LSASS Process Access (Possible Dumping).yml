@@ -1,0 +1,29 @@
+title: LSASS Process Access (Possible Dumping)
+id: 2b3c4d5e-6f70-4a8b-9cde-222222222222
+description: Detects processes accessing lsass.exe memory (potential credential dumping) via Sysmon ProcessAccess events.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 10
+    TargetImage|endswith: '\lsass.exe'
+    GrantedAccess|contains:
+      - '0x1010'
+      - '0x1ff'
+  condition: selection
+fields:
+  - Image
+  - TargetImage
+  - GrantedAccess
+level: critical
+tags:
+  - attack.credential_access
+  - attack.t1003
+references:
+  - https://attack.mitre.org/techniques/T1003/
+falsepositives:
+  - Legitimate credential management/debugging tools (should be whitelisted)

@@ -1,0 +1,22 @@
+title: Internal Port Scan Detection
+id: d3e4f5a6-7j81-4j9y-1234-111122223333
+description: Detects a single source IP attempting many unique internal ports in a short timeframe (internal reconnaissance).
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: network
+  service: firewall
+detection:
+  selection:
+    SourceIp|exists: true
+  condition: selection
+# Correlate counts of unique DestinationPort per SourceIp in time window (implementation-specific)
+fields:
+  - SourceIp
+  - DestinationPort
+level: medium
+tags:
+  - attack.reconnaissance
+falsepositives:
+  - Port sweeps by vulnerability scanners (tagged or whitelisted)

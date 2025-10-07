@@ -1,0 +1,25 @@
+title: High Volume to Encrypted File Sharing Services
+id: e0f1a2b3-4q58-4q6f-8901-888899990000
+description: Detects large outbound traffic to encrypted file sharing or cloud storage services not in whitelist.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: firewall
+  service: proxy
+detection:
+  selection:
+    DestinationHost|not_in:
+      - 'drive.google.com'
+      - 'dropbox.com'
+    Bytes|gt: 500000000
+  condition: selection
+fields:
+  - SourceIp
+  - DestinationHost
+  - Bytes
+level: high
+tags:
+  - attack.exfiltration
+falsepositives:
+  - Legit large uploads to unlisted vendors (maintain whitelist)

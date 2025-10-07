@@ -1,0 +1,21 @@
+title: Wget or Curl Download from Suspicious Domain
+id: b5c6d7e8-9a03-4b1q-3456-222233334444
+description: Detects usage of wget or curl downloading files from external suspicious domains or IPs.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: syslog
+detection:
+  selection:
+    Message|matches_regex: 'wget .*http(s)?://|curl .*http(s)?://'
+  condition: selection
+fields:
+  - Message
+level: high
+tags:
+  - attack.execution
+  - attack.t1105
+falsepositives:
+  - Legit downloads from external resources (whitelist trusted domains)

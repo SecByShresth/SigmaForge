@@ -1,0 +1,23 @@
+title: Multiple Failed SSH Logins (Brute Force)
+id: a8d9e0f1-2t36-4unk-6789-444455556666
+description: Detects multiple failed SSH authentication attempts from one source IP within a short time window.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: auth
+detection:
+  selection:
+    Message|contains: 'Failed password'
+  condition: selection
+# Note: correlation engine should count events per source IP within window
+fields:
+  - Message
+  - SourceIp
+level: medium
+tags:
+  - attack.initial_access
+  - attack.bruteforce
+falsepositives:
+  - Misconfigured clients; legitimate users mistyping passwords

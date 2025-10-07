@@ -1,0 +1,22 @@
+title: VPN Access from New Geolocation
+id: b1c2d3e4-5h69-4h7w-9012-888899990000
+description: Detects VPN logins originating from geolocations not previously seen for a user or organization.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: vpn
+  service: vpn
+detection:
+  selection:
+    Event|contains: 'VPN connection established'
+  condition: selection
+# Requires correlation to geo-IP history (implementation-specific)
+fields:
+  - Username
+  - SourceIp
+level: medium
+tags:
+  - attack.initial_access
+falsepositives:
+  - Travel by legitimate users (use geo-history)

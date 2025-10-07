@@ -1,0 +1,28 @@
+title: Suspicious Use of CertUtil
+id: 7a8b9c0d-1e25-4f6f-b012-777777777777
+description: Detects certutil.exe being used to download files or decode Base64, common defense evasion.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    Image|endswith: '\certutil.exe'
+    CommandLine|contains:
+      - '-urlcache'
+      - '-f'
+      - '-decode'
+      - '-decodefile'
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1114
+falsepositives:
+  - Admin certificate management operations

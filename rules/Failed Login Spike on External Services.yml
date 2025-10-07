@@ -1,0 +1,22 @@
+title: Failed Login Spike on External Services
+id: a6b7c8d9-0m14-4m2b-4567-444455556666
+description: Correlates spike in failed auth attempts across publicly exposed services indicating broad credential stuffing.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: proxy
+  service: web
+detection:
+  selection:
+    Status|matches: '401|403'
+  condition: selection
+# Implementation-specific aggregation over time and multiple services
+fields:
+  - SourceIp
+  - Url
+level: medium
+tags:
+  - attack.initial_access
+falsepositives:
+  - Misconfigured clients or testing scripts

@@ -1,0 +1,25 @@
+title: Disabling Windows Security Features
+id: b7e8f9a0-1i25-4jdf-5678-222233334444
+description: Detects command lines or registry operations targeting Windows Defender or security services.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_cmd:
+    EventID: 1
+    CommandLine|contains_any:
+      - 'sc stop WinDefend'
+      - 'Set-MpPreference'
+      - 'Disable-Antivirus'
+  condition: selection_cmd
+fields:
+  - Image
+  - CommandLine
+level: critical
+tags:
+  - attack.defense_evasion
+falsepositives:
+  - Legitimate admin disabling for maintenance (should be audited)

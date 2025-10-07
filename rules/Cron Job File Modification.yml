@@ -1,0 +1,25 @@
+title: Cron Job File Modification
+id: c0f1a2b3-4v58-4wpm-8901-666677778888
+description: Detects writes or changes to crontab files or /var/spool/cron, a common persistence mechanism.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: auditd
+detection:
+  selection:
+    syscall: open
+    path|contains_any:
+      - '/var/spool/cron'
+      - '/etc/crontab'
+    access|contains: 'w'
+  condition: selection
+fields:
+  - path
+  - syscall
+level: high
+tags:
+  - attack.persistence
+falsepositives:
+  - Legit cron updates by admins

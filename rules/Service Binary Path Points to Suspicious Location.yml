@@ -1,0 +1,24 @@
+title: Service Binary Path Points to Suspicious Location
+id: c4f5a6b7-8p92-4qij-2345-999900001111
+description: Detects services configured to run executables from non-standard paths (AppData, Temp).
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_service_change:
+    EventID: 7045
+    ServiceFileName|contains:
+      - '\\Temp\\'
+      - '\\AppData\\Local\\'
+  condition: selection_service_change
+fields:
+  - ServiceName
+  - ServiceFileName
+level: high
+tags:
+  - attack.persistence
+falsepositives:
+  - Nonstandard but legitimate service deployments

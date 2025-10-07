@@ -1,0 +1,24 @@
+title: Outbound Connection to Known Bad IP or Domain
+id: e8f9a0b1-2d36-4e4t-6789-555566667777
+description: Detects network connections from hosts to a curated list of malicious IPs/domains (C2).
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: network
+detection:
+  selection:
+    DestinationIp|in:
+      - '1.2.3.4'
+      - 'malicious.example.com'
+  condition: selection
+fields:
+  - SourceIp
+  - DestinationIp
+  - Process
+level: critical
+tags:
+  - attack.command_and_control
+falsepositives:
+  - False lists; maintain curated and updated blocklist

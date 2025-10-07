@@ -1,0 +1,20 @@
+title: Clear Windows Event Logs
+id: a2d3e4f5-6n70-4ohg-0123-777788889999
+description: Detects clearing of Windows event logs (Event ID 1102) which attackers do to remove evidence.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 1102
+  condition: selection
+fields:
+  - SubjectUserName
+level: critical
+tags:
+  - attack.defense_evasion
+falsepositives:
+  - Admin log cleanup maintenance

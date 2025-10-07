@@ -1,0 +1,22 @@
+title: Successful Login from Disabled Account
+id: e0b1c2d3-4l58-4mgf-8901-555566667777
+description: Detects successful logons (Event ID 4624) using accounts that are disabled.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4624
+    SubjectUserAccountControl|contains: 'ACCOUNTDISABLE'
+  condition: selection
+fields:
+  - SubjectUserName
+  - IpAddress
+level: critical
+tags:
+  - attack.initial_access
+falsepositives:
+  - Account re-enabled events combined with late logons (verify)

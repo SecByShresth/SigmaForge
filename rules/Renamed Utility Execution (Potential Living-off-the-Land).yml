@@ -1,0 +1,24 @@
+title: Renamed Utility Execution (Potential Living-off-the-Land)
+id: d5a6b7c8-9q03-4rjk-3456-111122223333
+description: Detects execution of common utilities (whoami.exe, net.exe) that appear under non-standard paths or with renamed filenames.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    (Image|endswith:
+      - '\whoami.exe'
+      - '\net.exe') and not (Image|matches: '*\\Windows\\System32\\*')
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+level: medium
+tags:
+  - attack.defense_evasion
+falsepositives:
+  - Portable versions of utilities placed in non-system folders

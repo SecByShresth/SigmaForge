@@ -1,0 +1,30 @@
+title: PsExec or Service Creation
+id: 8b9c0d1e-2f36-4a7f-c123-888888888888
+description: Detects creation or execution of PsExec-like services or service creations used for remote execution.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_service_create:
+    EventID: 1
+    CommandLine|contains:
+      - 'psexec'
+      - 'psexesvc'
+  selection_service_install:
+    EventID: 7045
+  condition: selection_service_create or selection_service_install
+fields:
+  - Image
+  - CommandLine
+  - ServiceName
+level: high
+tags:
+  - attack.lateral_movement
+  - attack.t1021
+falsepositives:
+  - Admin use of remote management tools
+references:
+  - https://attack.mitre.org/techniques/T1021/

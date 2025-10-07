@@ -1,0 +1,31 @@
+title: Office Application Spawning Suspicious Child Process
+id: e4b5c6d7-8f92-4gdf-2345-eeeeeeeeeeee
+description: Detects Microsoft Office apps (winword.exe, excel.exe) spawning command shells or scripting hosts.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_office:
+    EventID: 1
+    ParentImage|matches:
+      - '*\\winword.exe'
+      - '*\\excel.exe'
+      - '*\\powerpnt.exe'
+    Image|matches:
+      - '*\\cmd.exe'
+      - '*\\powershell.exe'
+      - '*\\wscript.exe'
+  condition: selection_office
+fields:
+  - ParentImage
+  - Image
+  - CommandLine
+level: high
+tags:
+  - attack.execution
+  - attack.t1204
+falsepositives:
+  - Macros legitimately running automation; verify source documents

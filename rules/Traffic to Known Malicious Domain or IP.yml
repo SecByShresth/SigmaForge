@@ -1,0 +1,24 @@
+title: Traffic to Known Malicious Domain or IP
+id: b7c8d9e0-1n25-4n3c-5678-555566667777
+description: Detects traffic logged by proxy/firewall to curated malicious IPs/domains (C2/hostile infra).
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: proxy
+  service: proxy
+detection:
+  selection:
+    DestinationHost|in:
+      - 'malicious.example'
+      - '8.8.8.8'
+  condition: selection
+fields:
+  - SourceIp
+  - DestinationHost
+  - Url
+level: critical
+tags:
+  - attack.command_and_control
+falsepositives:
+  - Outdated or broad threat lists; maintain curated lists

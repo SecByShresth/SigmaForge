@@ -1,0 +1,26 @@
+title: Suspicious HTTP Request to Sensitive Paths
+id: e4f5a6b7-8k92-4k0z-2345-222233334444
+description: Detects requests to well-known sensitive paths (.git, phpMyAdmin) that may indicate scanning or exploitation attempts.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: web
+  service: proxy
+detection:
+  selection:
+    UrlPath|contains_any:
+      - '.git'
+      - '/phpmyadmin'
+      - '/.env'
+  condition: selection
+fields:
+  - SourceIp
+  - UrlPath
+  - UserAgent
+level: high
+tags:
+  - attack.initial_access
+  - attack.reconnaissance
+falsepositives:
+  - Web crawlers or pentest activities (verify agent)

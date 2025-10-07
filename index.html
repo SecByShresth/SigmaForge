@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sigma Rule Explorer | Threat Detection Platform</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'cyber-blue': '#00D1FF',
+            'cyber-purple': '#9D4EDD',
+            'cyber-green': '#00FFAA',
+            'cyber-red': '#FF4D6D',
+            'cyber-yellow': '#FFEA00',
+            'cyber-orange': '#FF6B35',
+            'dark-bg': '#0A0E1A',
+            'dark-card': '#141825',
+            'dark-elevated': '#1A1F35',
+            'border-dark': '#2B334D',
+            'border-glow': '#3D4A6B',
+            'text-light': '#E6ECF5',
+            'text-muted': '#A3B1C6',
+            'glow-blue': 'rgba(0, 209, 255, 0.25)',
+          },
+          fontFamily: {
+            'mono': ['Fira Code', 'monospace'],
+            'sans': ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'gradient-flow': 'gradientFlow 8s ease infinite',
+            'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+            'float-slow': 'floatSlow 6s ease-in-out infinite',
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.4s ease-out',
+            'scan': 'scan 2s linear infinite',
+            'shimmer': 'shimmer 2.5s linear infinite',
+          },
+          keyframes: {
+            gradientFlow: {
+              '0%, 100%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+            },
+            pulseGlow: {
+              '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+              '50%': { opacity: '0.7', transform: 'scale(1.05)' },
+            },
+            floatSlow: {
+              '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+              '50%': { transform: 'translateY(-12px) rotate(5deg)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            scan: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(100%)' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #00D1FF #141825;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(ellipse at top, #141825 0%, #0A0E1A 100%);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated Grid Background */
+    .cyber-grid {
+      background-image:
+              linear-gradient(rgba(0, 209, 255, 0.03) 1.5px, transparent 1.5px),
+              linear-gradient(90deg, rgba(0, 209, 255, 0.03) 1.5px, transparent 1.5px);
+      background-size: 40px 40px;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.4;
+      animation: grid-pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes grid-pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Gradient Orbs Background */
+    .gradient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      top: -10%;
+      left: -5%;
+      background: radial-gradient(circle, #00D1FF 0%, transparent 70%);
+      animation: float-slow 12s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      bottom: -10%;
+      right: -5%;
+      background: radial-gradient(circle, #9D4EDD 0%, transparent 70%);
+      animation: float-slow 15s ease-in-out infinite reverse;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      top: 40%;
+      right: 10%;
+      background: radial-gradient(circle, #00FFAA 0%, transparent 70%);
+      animation: float-slow 18s ease-in-out infinite;
+      animation-delay: 2s;
+    }
+
+    /* Enhanced Card Styles */
+    .card {
+      background: linear-gradient(145deg, rgba(20, 24, 37, 0.9) 0%, rgba(26, 31, 53, 0.8) 100%);
+      border: 1px solid rgba(61, 74, 107, 0.3);
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 209, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: rgba(0, 209, 255, 0.6);
+      box-shadow:
+              0 20px 40px rgba(0, 0, 0, 0.4),
+              0 0 30px rgba(0, 209, 255, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    /* Stat Card Enhancement */
+    .stat-card {
+      position: relative;
+      overflow: visible;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--glow-color), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .stat-card:hover::after {
+      opacity: 1;
+    }
+
+    .stat-icon-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon-wrapper {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    /* Search Enhancement */
+    .search-container-enhanced {
+      position: relative;
+      background: linear-gradient(145deg, rgba(20, 24, 37, 0.95) 0%, rgba(26, 31, 53, 0.9) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(61, 74, 107, 0.4);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .glow-input {
+      background: rgba(10, 14, 26, 0.6);
+      border: 1.5px solid rgba(61, 74, 107, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .glow-input:focus {
+      background: rgba(10, 14, 26, 0.8);
+      box-shadow:
+              0 0 0 4px rgba(0, 209, 255, 0.15),
+              0 0 20px rgba(0, 209, 255, 0.2);
+      border-color: #00D1FF;
+    }
+
+    /* Tab Buttons */
+    .tab-button {
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, #00D1FF 0%, #0088CC 100%);
+      color: white;
+      box-shadow:
+              0 6px 20px rgba(0, 209, 255, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .tab-button.inactive {
+      background: rgba(43, 51, 77, 0.3);
+      color: #A3B1C6;
+      border: 1px solid rgba(61, 74, 107, 0.4);
+    }
+
+    .tab-button.inactive:hover {
+      background: rgba(0, 209, 255, 0.15);
+      color: #E6ECF5;
+      border-color: rgba(0, 209, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    /* Modal Enhancement */
+    .modal-bg {
+      background: rgba(10, 14, 26, 0.95);
+      backdrop-filter: blur(12px);
+    }
+
+    .modal-content {
+      background: linear-gradient(145deg, rgba(20, 24, 37, 0.98) 0%, rgba(26, 31, 53, 0.95) 100%);
+      border: 1px solid rgba(61, 74, 107, 0.5);
+      box-shadow:
+              0 30px 60px rgba(0, 0, 0, 0.6),
+              0 0 50px rgba(0, 209, 255, 0.1);
+    }
+
+    /* Query Card Enhancements */
+    .query-card {
+      border-left: 4px solid;
+      background: linear-gradient(145deg, rgba(20, 24, 37, 0.95) 0%, rgba(26, 31, 53, 0.9) 100%);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      animation: fade-in 0.6s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .query-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: inherit;
+      filter: blur(8px);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .query-card:hover {
+      transform: translateX(6px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .query-card:hover::after {
+      opacity: 1;
+    }
+
+    /* Button Enhancements */
+    .btn-cyber {
+      background: linear-gradient(135deg, #00D1FF 0%, #0088CC 100%);
+      color: white;
+      border-radius: 10px;
+      padding: 12px 24px;
+      transition: all 0.3s ease;
+      border: none;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.75rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 209, 255, 0.3);
+    }
+
+    .btn-cyber::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+
+    .btn-cyber:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-cyber:hover {
+      background: linear-gradient(135deg, #0088CC 0%, #0066A3 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 209, 255, 0.5);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #00FFAA 0%, #00CC88 100%);
+      color: #0A0E1A;
+      border-radius: 10px;
+      padding: 10px 20px;
+      transition: all 0.3s ease;
+      border: none;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(0, 255, 170, 0.3);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #00CC88 0%, #009966 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 255, 170, 0.5);
+    }
+
+    /* Badge Enhancements */
+    .badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: white;
+      animation: fade-in 0.6s ease-out;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .badge-attack {
+      background: linear-gradient(135deg, #FF4D6D 0%, #CC3A55 100%);
+    }
+
+    .badge-category {
+      background: linear-gradient(135deg, #00FFAA 0%, #00CC88 100%);
+    }
+
+    .badge-warning {
+      background: linear-gradient(135deg, #FFEA00 0%, #CCB800 100%);
+      color: #0A0E1A;
+    }
+
+    .badge-tag {
+      background: linear-gradient(135deg, #9D4EDD 0%, #7B2CBF 100%);
+    }
+
+    /* Status Dot Animation */
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00FFAA;
+      display: inline-block;
+      margin-right: 8px;
+      animation: pulse-glow 2s ease-in-out infinite;
+      box-shadow: 0 0 10px rgba(0, 255, 170, 0.8);
+    }
+
+    /* Header Enhancement */
+    .header-gradient {
+      background: linear-gradient(135deg, rgba(10, 14, 26, 0.98) 0%, rgba(20, 24, 37, 0.95) 100%);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(61, 74, 107, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #141825;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #00D1FF 0%, #0088CC 100%);
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #00FFAA 0%, #00CC88 100%);
+    }
+
+    /* Shine Text Effect */
+    .shine-text {
+      background: linear-gradient(90deg, #00D1FF 0%, #00FFAA 50%, #9D4EDD 100%);
+      background-size: 200% 100%;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-flow 6s linear infinite;
+    }
+
+    /* Loading Animation */
+    .loading-pulse {
+      position: relative;
+    }
+
+    .loading-pulse::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 120%;
+      height: 120%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 209, 255, 0.3), transparent);
+      transform: translate(-50%, -50%);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* Icon Wrapper Effects */
+    .icon-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      background: inherit;
+      filter: blur(8px);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover .icon-wrapper::before {
+      opacity: 0.6;
+    }
+
+    /* Copy Button Enhancement */
+    .copy-query-btn {
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .copy-query-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .copy-query-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Code Block Styling */
+    .code-pre {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      border: 1px solid rgba(61, 74, 107, 0.3);
+      background: rgba(10, 14, 26, 0.6);
+    }
+
+    /* Responsive Grid Gap */
+    @media (max-width: 640px) {
+      .search-container-enhanced {
+        padding: 1.5rem;
+      }
+    }
+
+    /* Floating Action Indicators */
+    .action-indicator {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: linear-gradient(135deg, #00D1FF 0%, #0088CC 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 209, 255, 0.4);
+      z-index: 100;
+      animation: slide-up 0.4s ease-out;
+    }
+  </style>
+</head>
+<body class="text-text-light min-h-screen relative">
+
+<!-- Background Elements -->
+<div class="cyber-grid"></div>
+<div class="gradient-orb orb-1"></div>
+<div class="gradient-orb orb-2"></div>
+<div class="gradient-orb orb-3"></div>
+
+<!-- Floating Particles -->
+<div class="fixed inset-0 pointer-events-none z-0">
+  <div class="absolute top-[15%] left-[20%] w-3 h-3 bg-cyber-blue rounded-full opacity-30 animate-float-slow"></div>
+  <div class="absolute top-[25%] right-[15%] w-2 h-2 bg-cyber-green rounded-full opacity-40 animate-float-slow" style="animation-delay: 1.2s;"></div>
+  <div class="absolute bottom-[20%] left-[30%] w-3 h-3 bg-cyber-red rounded-full opacity-25 animate-float-slow" style="animation-delay: 1.8s;"></div>
+  <div class="absolute bottom-[25%] right-[25%] w-2 h-2 bg-cyber-yellow rounded-full opacity-35 animate-float-slow" style="animation-delay: 2.4s;"></div>
+  <div class="absolute top-[60%] left-[10%] w-2 h-2 bg-cyber-purple rounded-full opacity-30 animate-float-slow" style="animation-delay: 3s;"></div>
+  <div class="absolute top-[40%] right-[40%] w-2 h-2 bg-cyber-orange rounded-full opacity-25 animate-float-slow" style="animation-delay: 3.6s;"></div>
+</div>
+
+<!-- Header -->
+<header class="header-gradient sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="bg-gradient-to-br from-cyber-blue via-cyber-purple to-cyber-green rounded-2xl p-3 shadow-lg relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-shimmer" style="background-size: 200% 100%;"></div>
+          <svg class="w-7 h-7 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-extrabold shine-text">Sigma Rule Explorer</h1>
+          <p class="text-sm text-text-muted flex items-center mt-1">
+            <span class="status-dot"></span>
+            <span class="font-medium">Advanced Threat Detection Platform</span>
+          </p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center space-x-3">
+        <div class="text-text-muted bg-dark-elevated px-4 py-2.5 rounded-xl border border-border-dark text-sm shadow-lg">
+          <i class="fas fa-database mr-2 text-cyber-blue"></i>
+          <span class="font-semibold">Security Rules Repository</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
+
+  <!-- Stats Section -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+    <div class="stat-card card p-6 flex items-center animate-fade-in" style="--glow-color: #00D1FF;">
+      <div class="stat-icon-wrapper bg-gradient-to-br from-cyber-blue/20 to-cyber-blue/5 mr-4">
+        <i class="fas fa-file-code text-cyber-blue text-2xl"></i>
+      </div>
+      <div class="flex-grow">
+        <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Total Security Rules</p>
+        <p id="totalRules" class="text-3xl font-extrabold text-cyber-blue">-</p>
+      </div>
+    </div>
+
+    <div class="stat-card card p-6 flex items-center animate-fade-in" style="animation-delay: 0.1s; --glow-color: #00FFAA;">
+      <div class="stat-icon-wrapper bg-gradient-to-br from-cyber-green/20 to-cyber-green/5 mr-4">
+        <i class="fas fa-tags text-cyber-green text-2xl"></i>
+      </div>
+      <div class="flex-grow">
+        <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Unique Tags</p>
+        <p id="uniqueTags" class="text-3xl font-extrabold text-cyber-green">-</p>
+      </div>
+    </div>
+
+    <div class="stat-card card p-6 flex items-center animate-fade-in" style="animation-delay: 0.2s; --glow-color: #FF4D6D;">
+      <div class="stat-icon-wrapper bg-gradient-to-br from-cyber-red/20 to-cyber-red/5 mr-4">
+        <i class="fas fa-shield-alt text-cyber-red text-2xl"></i>
+      </div>
+      <div class="flex-grow">
+        <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">MITRE ATT&CK</p>
+        <p id="attackCount" class="text-3xl font-extrabold text-cyber-red">-</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-container-enhanced mb-10 animate-fade-in" style="animation-delay: 0.3s;">
+    <div class="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
+      <div class="flex-grow">
+        <div class="relative">
+          <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-cyber-blue text-lg"></i>
+          <input type="text" id="searchInput" placeholder="Search by rule title, description, tags, or MITRE ATT&CK technique..."
+                 class="w-full pl-12 pr-4 py-4 bg-dark-bg border-2 border-border-dark rounded-2xl focus:outline-none text-text-light glow-input placeholder-text-muted text-base font-medium">
+        </div>
+      </div>
+      <button id="clearSearch" class="px-6 py-4 border-2 border-border-glow rounded-2xl text-text-light hover:bg-cyber-blue/15 hover:border-cyber-blue transition-all duration-300 text-base font-semibold flex items-center justify-center gap-2">
+        <i class="fas fa-eraser"></i>
+        <span>Clear Filters</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Rules Grid -->
+  <div id="rulesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="col-span-full text-center py-16">
+      <div class="inline-block p-8 card loading-pulse">
+        <div class="flex flex-col items-center">
+          <div class="mb-5 relative">
+            <i class="fas fa-spinner text-cyber-blue text-4xl animate-spin"></i>
+          </div>
+          <p class="text-xl text-cyber-blue font-bold mb-2">Loading Security Rules</p>
+          <p class="text-sm text-text-muted">Initializing threat detection database...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div id="yamlModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-6">
+  <div class="modal-content rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden transform transition-all duration-300 scale-95">
+    <div class="p-6 border-b border-border-glow bg-gradient-to-r from-dark-bg to-dark-elevated">
+      <div class="flex justify-between items-start mb-5">
+        <div class="flex-grow pr-4">
+          <h2 id="modalTitle" class="text-2xl font-extrabold text-cyber-blue mb-2 truncate"></h2>
+          <p class="text-sm text-text-muted">Detailed rule analysis and SIEM query conversion</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <a id="downloadLink" href="#" download class="btn-secondary flex items-center space-x-2 text-sm">
+            <i class="fas fa-download"></i>
+            <span>Download YAML</span>
+          </a>
+          <button class="close-button text-text-light hover:text-white bg-cyber-red/20 hover:bg-cyber-red/30 p-3 rounded-xl transition-all" onclick="closeModal()">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex space-x-2">
+        <button class="tab-button active flex items-center space-x-2 text-sm" onclick="showTab('yaml')">
+          <i class="fas fa-code"></i>
+          <span>YAML Source</span>
+        </button>
+        <button class="tab-button inactive flex items-center space-x-2 text-sm" onclick="showTab('query')">
+          <i class="fas fa-search"></i>
+          <span>SIEM Queries</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="p-6 overflow-y-auto max-h-[70vh] bg-dark-bg">
+      <div id="yaml-tab" class="tab-content block">
+        <div class="bg-dark-elevated rounded-xl border border-border-glow overflow-hidden shadow-2xl">
+          <div class="flex justify-between items-center bg-gradient-to-r from-dark-bg to-dark-elevated px-5 py-3 border-b border-border-dark">
+            <span class="font-bold text-text-light text-sm flex items-center gap-2">
+              <i class="fas fa-file-code text-cyber-blue"></i>
+              Rule Definition
+            </span>
+            <button id="copyYaml" class="text-text-muted hover:text-cyber-blue flex items-center space-x-2 transition-all hover:scale-105">
+              <i class="far fa-copy"></i>
+              <span class="font-semibold">Copy</span>
+            </button>
+          </div>
+          <pre class="overflow-auto rounded-b-xl max-h-[60vh] p-5"><code class="language-yaml" id="yamlCodeBlock"></code></pre>
+        </div>
+      </div>
+
+      <div id="query-tab" class="tab-content hidden">
+        <div id="queryOutput" class="space-y-6">
+
+          <div class="query-card border-l-cyber-yellow p-5 rounded-xl shadow-xl">
+            <div class="flex items-center mb-4">
+              <div class="bg-gradient-to-br from-cyber-yellow/20 to-cyber-yellow/5 p-3 rounded-xl mr-3">
+                <i class="fas fa-search text-cyber-yellow text-xl"></i>
+              </div>
+              <div>
+                <h4 class="text-lg font-bold text-text-light">Splunk SPL</h4>
+                <p class="text-xs text-text-muted">Search Processing Language Query</p>
+              </div>
+            </div>
+            <div class="flex gap-3 items-start">
+              <pre class="code-pre text-text-light p-4 rounded-xl flex-grow text-sm" id="splunkQuery"></pre>
+              <button class="copy-query-btn bg-cyber-yellow/15 text-cyber-yellow p-3 rounded-xl hover:bg-cyber-yellow/25 shadow-lg" data-target="splunkQuery">
+                <i class="far fa-copy text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="query-card border-l-cyber-blue p-5 rounded-xl shadow-xl">
+            <div class="flex items-center mb-4">
+              <div class="bg-gradient-to-br from-cyber-blue/20 to-cyber-blue/5 p-3 rounded-xl mr-3">
+                <i class="fas fa-search text-cyber-blue text-xl"></i>
+              </div>
+              <div>
+                <h4 class="text-lg font-bold text-text-light">Microsoft Sentinel KQL</h4>
+                <p class="text-xs text-text-muted">Kusto Query Language</p>
+              </div>
+            </div>
+            <div class="flex gap-3 items-start">
+              <pre class="code-pre text-text-light p-4 rounded-xl flex-grow text-sm" id="kqlQuery"></pre>
+              <button class="copy-query-btn bg-cyber-blue/15 text-cyber-blue p-3 rounded-xl hover:bg-cyber-blue/25 shadow-lg" data-target="kqlQuery">
+                <i class="far fa-copy text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="query-card border-l-cyber-green p-5 rounded-xl shadow-xl">
+            <div class="flex items-center mb-4">
+              <div class="bg-gradient-to-br from-cyber-green/20 to-cyber-green/5 p-3 rounded-xl mr-3">
+                <i class="fas fa-search text-cyber-green text-xl"></i>
+              </div>
+              <div>
+                <h4 class="text-lg font-bold text-text-light">Elasticsearch Query</h4>
+                <p class="text-xs text-text-muted">Lucene Query Syntax</p>
+              </div>
+            </div>
+            <div class="flex gap-3 items-start">
+              <pre class="code-pre text-text-light p-4 rounded-xl flex-grow text-sm" id="elasticQuery"></pre>
+              <button class="copy-query-btn bg-cyber-green/15 text-cyber-green p-3 rounded-xl hover:bg-cyber-green/25 shadow-lg" data-target="elasticQuery">
+                <i class="far fa-copy text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+
+<script>
+  const RULES_FOLDER = 'rules/';
+  const rulesContainer = document.getElementById('rulesContainer');
+  const searchInput = document.getElementById('searchInput');
+  const modal = document.getElementById('yamlModal');
+  const clearSearch = document.getElementById('clearSearch');
+
+  let allRules = [];
+  let uniqueTags = new Set();
+  let attackTags = new Set();
+
+  async function fetchAndParseRule(filename) {
+    try {
+      const response = await fetch(`${RULES_FOLDER}${filename}`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const yamlText = await response.text();
+      const rule = jsyaml.load(yamlText);
+
+      const title = rule.title || filename.replace('.yml', '').replace(/-/g, ' ');
+      const description = rule.description || 'No description provided.';
+
+      let tags = rule.tags || [];
+      if (rule.logsource && rule.logsource.category) {
+        tags.push(rule.logsource.category);
+      }
+      if (rule.logsource && rule.logsource.product) {
+        tags.push(rule.logsource.product);
+      }
+
+      if (rule.tags) {
+        const attackTagsFromRule = rule.tags.filter(tag =>
+                tag.includes('attack.') ||
+                tag.match(/t\d{4}(\.\d{3})?/gi)
+        );
+        attackTagsFromRule.forEach(tag => attackTags.add(tag));
+      }
+
+      tags.forEach(tag => uniqueTags.add(tag));
+
+      return { filename, title, description, tags, yamlText, detection: rule.detection };
+    } catch (error) {
+      console.error(`Error processing file ${filename}:`, error);
+      return null;
+    }
+  }
+
+  async function loadAllRules() {
+    console.log('Starting to load rules from rules-manifest.json...');
+    rulesContainer.innerHTML = `<div class="col-span-full text-center py-16">
+      <div class="inline-block p-8 card loading-pulse">
+        <div class="flex flex-col items-center">
+          <div class="mb-5 relative">
+            <i class="fas fa-spinner text-cyber-blue text-4xl animate-spin"></i>
+          </div>
+          <p class="text-xl text-cyber-blue font-bold mb-2">Loading Security Rules</p>
+          <p class="text-sm text-text-muted">Initializing threat detection database...</p>
+        </div>
+      </div>
+    </div>`;
+
+    try {
+      console.log('Fetching rules-manifest.json...');
+      const manifestResponse = await fetch('rules-manifest.json');
+      console.log('Manifest response status:', manifestResponse.status);
+      if (!manifestResponse.ok) {
+        throw new Error(`Failed to fetch rules-manifest.json: HTTP ${manifestResponse.status}`);
+      }
+      const filenames = await manifestResponse.json();
+      console.log('Manifest filenames:', filenames);
+
+      if (!Array.isArray(filenames) || filenames.length === 0) {
+        throw new Error('rules-manifest.json is empty or not a valid array');
+      }
+
+      console.log(`Processing ${filenames.length} rule files...`);
+      const rulePromises = filenames.map(fetchAndParseRule);
+      allRules = (await Promise.all(rulePromises)).filter(r => r !== null);
+      console.log(`Loaded ${allRules.length} valid rules`);
+
+      if (allRules.length === 0) {
+        rulesContainer.innerHTML = `<div class="col-span-full text-center py-16">
+          <div class="inline-block p-8 card">
+            <i class="fas fa-exclamation-triangle text-cyber-red text-5xl mb-4"></i>
+            <p class="text-xl text-cyber-red font-bold mb-2">No Valid Rules Found</p>
+            <p class="text-sm text-text-muted">Check that YAML files in <code class="bg-dark-bg px-2 py-1 rounded">rules/</code> are valid Sigma rules.</p>
+          </div>
+        </div>`;
+      }
+
+      updateStats();
+      renderRules(allRules);
+    } catch (error) {
+      console.error("Failed to load rules:", error);
+      rulesContainer.innerHTML = `<div class="col-span-full text-center py-16">
+          <div class="inline-block p-8 card">
+            <i class="fas fa-exclamation-triangle text-cyber-red text-5xl mb-4"></i>
+            <p class="text-xl text-cyber-red font-bold mb-2">Failed to Load Rules</p>
+            <p class="text-sm text-text-muted max-w-2xl">Error: ${error.message}. Ensure <code class="bg-dark-bg px-2 py-1 rounded">rules-manifest.json</code> exists and lists valid YAML filenames in <code class="bg-dark-bg px-2 py-1 rounded">rules/</code>. Check console for details.</p>
+          </div>
+        </div>`;
+      updateStats();
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('totalRules').textContent = allRules.length;
+    document.getElementById('uniqueTags').textContent = uniqueTags.size;
+    document.getElementById('attackCount').textContent = attackTags.size;
+  }
+
+  function renderRules(rules) {
+    rulesContainer.innerHTML = '';
+
+    if (rules.length === 0) {
+      rulesContainer.innerHTML = `<div class="col-span-full text-center py-16">
+          <div class="inline-block p-8 card">
+            <i class="fas fa-search text-text-muted text-5xl mb-4"></i>
+            <p class="text-xl text-text-muted font-bold mb-2">No Rules Found</p>
+            <p class="text-sm text-text-muted/80">Try adjusting your search criteria</p>
+          </div>
+        </div>`;
+      return;
+    }
+
+    rules.forEach((rule, index) => {
+      const tagHtml = rule.tags.slice(0, 5).map(tag => {
+        const isAttack = tag.includes('attack.') || tag.match(/t\d{4}/);
+        const isWindows = tag.includes('windows');
+        const isLinux = tag.includes('linux');
+        const isNetwork = tag.includes('network');
+
+        let badgeClass = 'badge-tag';
+        let icon = '<i class="fas fa-tag" style="font-size: 0.65rem;"></i>';
+
+        if (isAttack) {
+          badgeClass = 'badge-attack';
+          icon = '<i class="fas fa-crosshairs" style="font-size: 0.65rem;"></i>';
+        } else if (isWindows || isLinux || isNetwork) {
+          badgeClass = 'badge-category';
+          icon = '<i class="fas fa-folder" style="font-size: 0.65rem;"></i>';
+        } else if (tag.includes('deprecated') || tag.includes('test')) {
+          badgeClass = 'badge-warning';
+          icon = '<i class="fas fa-exclamation-triangle" style="font-size: 0.65rem;"></i>';
+        }
+
+        return `<span class="badge ${badgeClass}">${icon}${tag}</span>`;
+      }).join('');
+
+      const moreTagsCount = rule.tags.length > 5 ? rule.tags.length - 5 : 0;
+      const moreTagsBadge = moreTagsCount > 0 ? `<span class="badge badge-tag">+${moreTagsCount} more</span>` : '';
+
+      rulesContainer.innerHTML += `
+        <div class="card p-6 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-lg font-bold text-text-light flex-grow mr-3 leading-tight" title="${rule.title}">${rule.title}</h3>
+            <span class="text-xs text-text-muted bg-cyber-blue/10 px-3 py-1.5 rounded-full font-mono border border-cyber-blue/20">${rule.filename}</span>
+          </div>
+          <p class="text-sm text-text-muted mb-4 line-clamp-3 leading-relaxed">${rule.description}</p>
+          <div class="flex flex-wrap gap-2 mb-5 min-h-[28px]">
+            ${tagHtml}
+            ${moreTagsBadge}
+          </div>
+          <button onclick="openModal('${rule.filename.replace(/'/g, "\\'")}')"
+            class="w-full btn-cyber flex items-center justify-center relative z-10">
+            <i class="fas fa-eye mr-2"></i>
+            <span>View Rule & Queries</span>
+          </button>
+        </div>
+      `;
+    });
+  }
+
+  function filterRules() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+
+    if (searchTerm === '') {
+      renderRules(allRules);
+      return;
+    }
+
+    const filteredRules = allRules.filter(rule => {
+      const searchContent = `${rule.title} ${rule.description} ${rule.tags.join(' ')}`.toLowerCase();
+      return searchContent.includes(searchTerm);
+    });
+    renderRules(filteredRules);
+  }
+
+  window.showTab = function(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.add('hidden');
+    });
+    document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.classList.remove('active');
+      button.classList.add('inactive');
+    });
+
+    const activeTabButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+    if (activeTabButton) {
+      activeTabButton.classList.add('active');
+      activeTabButton.classList.remove('inactive');
+    }
+  }
+
+  function convertToQuery(rule) {
+    const siemQueries = {
+      splunk: 'index=* ',
+      kql: 'SecurityEvent ',
+      elastic: '',
+    };
+
+    if (!rule.detection || typeof rule.detection !== 'object' || typeof rule.detection.selection !== 'object') {
+      const complexMsg = '# Rule detection logic is too complex or malformed for simple client-side conversion, requires pySigma.';
+      siemQueries.splunk = complexMsg;
+      siemQueries.kql = `// ${complexMsg.substring(2)}`;
+      siemQueries.elastic = complexMsg;
+      return siemQueries;
+    }
+
+    const selection = rule.detection.selection;
+    let splunkConditions = [];
+    let kqlConditions = [];
+    let elasticConditions = [];
+
+    const fieldMap = {
+      'Image|endswith': 'NewProcessName',
+      'Image': 'NewProcessName',
+      'CommandLine': 'CommandLine',
+      'ParentImage|contains': 'ParentProcessName',
+      'EventID': 'EventID',
+      'Accesses|contains': 'AccessMask',
+      'logsource.category': 'EventLog',
+      'TargetFilename|contains': 'TargetFileName',
+      'Details|contains': 'Details',
+      'EventID': 'event.code',
+      'Image': 'process.executable',
+      'CommandLine': 'process.command_line',
+      'ParentImage|contains': 'process.parent.executable',
+      'TargetFilename|contains': 'file.path',
+    };
+
+    const fields = Object.keys(selection);
+
+    fields.forEach(sigmaField => {
+      const splunkField = fieldMap[sigmaField] || sigmaField;
+      const kqlField = fieldMap[sigmaField] || sigmaField;
+      const elasticField = fieldMap[sigmaField] || sigmaField;
+
+      const values = Array.isArray(selection[sigmaField]) ? selection[sigmaField] : [selection[sigmaField]];
+
+      let splunkValueList = [];
+      let kqlValueList = [];
+      let elasticValueList = [];
+
+      values.forEach(val => {
+        let cleanVal = String(val).replace(/\\/g, '\\\\').replace(/"/g, '\"');
+
+        let splunkVal = cleanVal;
+        if (sigmaField.includes('|contains')) {
+          splunkVal = `*${cleanVal}*`;
+        } else if (sigmaField.includes('|endswith')) {
+          splunkVal = `*${cleanVal}`;
+        } else if (sigmaField.includes('|startswith')) {
+          splunkVal = `${cleanVal}*`;
+        }
+        splunkValueList.push(`"${splunkVal}"`);
+
+        let kqlOp = '=~';
+        if (sigmaField.includes('|contains')) {
+          kqlOp = 'contains';
+        } else if (sigmaField.includes('|endswith')) {
+          kqlOp = 'endswith';
+        } else if (sigmaField.includes('|startswith')) {
+          kqlOp = 'startswith';
+        }
+        kqlValueList.push(`${kqlField} ${kqlOp} "${cleanVal}"`);
+
+        let elasticVal = cleanVal;
+        if (sigmaField.includes('|contains')) {
+          elasticVal = `*${cleanVal}*`;
+        } else if (sigmaField.includes('|endswith')) {
+          elasticVal = `*${cleanVal}`;
+        } else if (sigmaField.includes('|startswith')) {
+          elasticVal = `${cleanVal}*`;
+        }
+        elasticValueList.push(`"${elasticVal}"`);
+      });
+
+      splunkConditions.push(`(${splunkField}=${splunkValueList.join(' OR ')})`);
+      kqlConditions.push(`(${kqlValueList.join(' or ')})`);
+      elasticConditions.push(`(${elasticField}:(${elasticValueList.join(' OR ')}))`);
+    });
+
+    siemQueries.splunk += `search ${splunkConditions.join(' AND ')} | table _time, host, ${fields.map(f => fieldMap[f] || f).join(', ')}`;
+    siemQueries.kql += `| where ${kqlConditions.join(' and ')} | project TimeGenerated, Computer, ${fields.map(f => fieldMap[f] || f).join(', ')}`;
+    siemQueries.elastic = `${elasticConditions.join(' AND ')}`;
+
+    return siemQueries;
+  }
+
+  window.openModal = function(filename) {
+    const rule = allRules.find(r => r.filename === filename);
+    if (!rule) return;
+
+    document.getElementById('modalTitle').textContent = rule.title;
+
+    const yamlCodeBlock = document.getElementById('yamlCodeBlock');
+    yamlCodeBlock.textContent = rule.yamlText;
+    hljs.highlightElement(yamlCodeBlock);
+
+    const queries = convertToQuery(rule);
+    document.getElementById('splunkQuery').textContent = queries.splunk;
+    document.getElementById('kqlQuery').textContent = queries.kql;
+    document.getElementById('elasticQuery').textContent = queries.elastic;
+
+    const blob = new Blob([rule.yamlText], { type: 'text/yaml' });
+    document.getElementById('downloadLink').href = URL.createObjectURL(blob);
+    document.getElementById('downloadLink').download = filename;
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      document.querySelector('.modal-content').classList.remove('scale-95');
+      document.querySelector('.modal-content').classList.add('scale-100');
+    }, 10);
+    showTab('yaml');
+  }
+
+  window.closeModal = function() {
+    document.querySelector('.modal-content').classList.remove('scale-100');
+    document.querySelector('.modal-content').classList.add('scale-95');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 200);
+  }
+
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('copy-query-btn') || e.target.closest('.copy-query-btn')) {
+      const button = e.target.classList.contains('copy-query-btn') ? e.target : e.target.closest('.copy-query-btn');
+      const targetId = button.getAttribute('data-target');
+      const textToCopy = document.getElementById(targetId).textContent;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check text-xl"></i>';
+        setTimeout(() => {
+          button.innerHTML = originalIcon;
+        }, 1500);
+      });
+    }
+
+    if (e.target.id === 'copyYaml' || e.target.closest('#copyYaml')) {
+      const yamlText = document.getElementById('yamlCodeBlock').textContent;
+      navigator.clipboard.writeText(yamlText).then(() => {
+        const button = e.target.id === 'copyYaml' ? e.target : e.target.closest('#copyYaml');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check mr-2"></i><span>Copied!</span>';
+        setTimeout(() => {
+          button.innerHTML = originalText;
+        }, 1500);
+      });
+    }
+  });
+
+  clearSearch.addEventListener('click', function() {
+    searchInput.value = '';
+    filterRules();
+  });
+
+  searchInput.addEventListener('input', filterRules);
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      closeModal();
+    }
+  });
+
+  loadAllRules();
+</script>
+</body>
+</html>

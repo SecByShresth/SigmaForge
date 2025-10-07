@@ -1,0 +1,23 @@
+title: High Volume Outbound Data Transfer
+id: c2d3e4f5-6i70-4i8x-0123-999900001111
+description: Correlates abnormally large outbound flows from internal hosts to external destinations, indicative of exfiltration.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: firewall
+  service: proxy
+detection:
+  selection:
+    Direction: outbound
+    Bytes|gt: 1000000000
+  condition: selection
+fields:
+  - SourceIp
+  - DestinationIp
+  - Bytes
+level: critical
+tags:
+  - attack.exfiltration
+falsepositives:
+  - Large legitimate backups or cloud sync (whitelist destinations)

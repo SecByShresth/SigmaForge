@@ -1,0 +1,25 @@
+title: Sudoers File Modification
+id: b9e0f1a2-3u47-4vol-7890-555566667777
+description: Detects writes or modifications to /etc/sudoers or files in /etc/sudoers.d/, indicating possible privilege escalation persistence.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: auditd
+detection:
+  selection:
+    syscall: open
+    path|starts_with:
+      - '/etc/sudoers'
+      - '/etc/sudoers.d/'
+    access|contains: 'w'
+  condition: selection
+fields:
+  - path
+  - syscall
+level: critical
+tags:
+  - attack.privilege_escalation
+falsepositives:
+  - Legit admin changes to sudoers (review user)

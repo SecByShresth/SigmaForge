@@ -1,0 +1,24 @@
+title: Execution from Temp Directory
+id: b3e4f5a6-7o81-4pih-1234-888899990000
+description: Detects execution of binaries from temporary directories, common for malicious drop-and-run.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    Image|contains:
+      - '\\AppData\\Local\\Temp\\'
+      - '\\Temp\\'
+  condition: selection
+fields:
+  - Image
+  - CommandLine
+level: high
+tags:
+  - attack.execution
+falsepositives:
+  - Legit installers that temporarily run from temp folder

@@ -1,0 +1,25 @@
+title: Internal SMB/RDP Connections to Multiple Hosts
+id: d9e0f1a2-3p47-4p5e-7890-777788889999
+description: Detects internal hosts initiating many SMB or RDP connections to other internal hosts, indicating possible lateral movement.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: network
+  service: netflow
+detection:
+  selection:
+    Protocol|in:
+      - 'SMB'
+      - 'RDP'
+  condition: selection
+# Correlate count of distinct DestinationIp per SourceIp
+fields:
+  - SourceIp
+  - DestinationIp
+  - Protocol
+level: high
+tags:
+  - attack.lateral_movement
+falsepositives:
+  - Remote management systems hitting many hosts (whitelist)

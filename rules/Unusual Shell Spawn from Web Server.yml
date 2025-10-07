@@ -1,0 +1,30 @@
+title: Unusual Shell Spawn from Web Server
+id: e6b7c8d9-0r14-4slk-4567-222233334444
+description: Detects a web server process spawning a shell (httpd, nginx spawning bash/python), indicating possible web-shell.
+status: stable
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: auditd
+detection:
+  selection:
+    syscall: execve
+    parent_process|matches:
+      - '*httpd*'
+      - '*apache*'
+      - '*nginx*'
+    process|matches:
+      - '*bash*'
+      - '*sh*'
+      - '*python*'
+  condition: selection
+fields:
+  - parent_process
+  - process
+level: critical
+tags:
+  - attack.execution
+  - attack.t1505
+falsepositives:
+  - CGI scripts legitimately launching interpreters

@@ -1,0 +1,24 @@
+title: System Enumeration Command Burst
+id: f3a4b5c6-7y81-4zso-1234-999900001111
+description: Detects quick succession of system enumeration commands (uname, lsof, netstat) indicating discovery.
+status: experimental
+author: shresth paul
+date: 2025-10-07
+logsource:
+  product: linux
+  service: bash
+detection:
+  selection:
+    Message|contains_any:
+      - 'uname -a'
+      - 'lsof'
+      - 'netstat -tuln'
+      - 'ss -tuln'
+  condition: selection
+fields:
+  - Message
+level: medium
+tags:
+  - attack.discovery
+falsepositives:
+  - Admin troubleshooting scripts
